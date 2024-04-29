@@ -78,6 +78,7 @@ public class ServerMainThread extends Thread {
                 // 접속 종료
                 if ("/bye".equalsIgnoreCase(msg.trim())) {
                     System.out.println(nickname + " 닉네임의 사용자가 연결을 끊었습니다.");
+                    out.println("접속을 종료합니다. ");
                     break;
 
                 }

@@ -76,7 +76,13 @@ public class ServerRoomThread extends Thread {
                         out.println("현재 채팅방 안에 존재하지 않는 유저 입니다. 다시 확인해 주세요.");
                     }
 
-                } else {
+                }
+                // 채팅방에 /bye 입력하면 접속이 종료되는 문제 방지
+                else if ("/bye".equals(msg.trim())) {
+                    broadcast(roomClientInfo.getNickName() + " : " + msg);
+                    fileWriter.println(roomClientInfo.getNickName() + " : " + msg);
+                }
+                else {
                     broadcast(roomClientInfo.getNickName() + " : " + msg);
                     fileWriter.println(roomClientInfo.getNickName() + " : " + msg);
                 }
