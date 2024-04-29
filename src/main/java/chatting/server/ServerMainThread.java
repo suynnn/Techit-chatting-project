@@ -33,7 +33,7 @@ public class ServerMainThread extends Thread {
             while (true) {
                 nickname = in.readLine();
                 if (chatClients.containsKey(nickname)) {
-                    out.print("이미 사용 중인 닉네임 입니다. 다시 입력해주세요 : ");
+                    out.println("이미 사용 중인 닉네임 입니다. 다시 입력해주세요 : ");
 
                 } else {
                     System.out.println(nickname + " 닉네임의 사용자가 연결했습니다. 해당 사용자의 IP 주소 : "
