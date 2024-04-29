@@ -78,7 +78,7 @@ public class ServerRoomThread extends Thread {
 
                 }
                 // 채팅방에 /bye 입력하면 접속이 종료되는 문제 방지
-                else if ("/bye".equals(msg.trim())) {
+                else if ("/bye".equalsIgnoreCase(msg.trim())) {
                     broadcast(roomClientInfo.getNickName() + " : " + msg);
                     fileWriter.println(roomClientInfo.getNickName() + " : " + msg);
                 }

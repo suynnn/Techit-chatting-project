@@ -65,7 +65,8 @@ public class ServerMainThread extends Thread {
                 "접속종료 : /bye\n" +
                 "현재 접속중인 유저 목록 확인 : /users\n" +
                 "현재 방에 있는 유저 목록 확인 : /roomusers\n" +
-                "귓속말 : /whisper [닉네임] [메시지]";
+                "귓속말 : /whisper [닉네임] [메시지]\n" +
+                "닉네임 변경 : /changename";
 
         String msg;
         FileWriter fileWriter = null;
@@ -169,6 +170,20 @@ public class ServerMainThread extends Thread {
                         out.println("존재하지 않는 유저 입니다. 다시 확인해 주세요.");
                     }
                 }
+                // 닉네임 변경
+                else if ("/changename".equalsIgnoreCase(msg.trim())) {
+                    out.println("변경하실 닉네임을 작성해 주세요 :");
+                    String newNickname = in.readLine();
+
+                    chatClients.put(newNickname, chatClients.get(nickname));
+                    chatClients.remove(nickname);
+
+                    System.out.println(nickname + "님의 닉네임이 변경되었습니다 -> " + newNickname);
+                    out.println(nickname + "님의 닉네임이 변경되었습니다 -> " + newNickname);
+
+                    setNickname(newNickname);
+
+                }
                 // 명령어를 제대로 입력하지 않았을 시
                 else {
                     out.println("잘못된 명령어 입니다. 다시 입력해 주세요");
@@ -208,5 +223,9 @@ public class ServerMainThread extends Thread {
 
 
         }
+    }
+
+    private void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 }
