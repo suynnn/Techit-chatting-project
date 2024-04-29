@@ -91,8 +91,15 @@ public class ServerMainThread extends Thread {
 
                     roomList.put(roomName, new ArrayList<>());
 
+                    RoomClientInfo roomManager = new RoomClientInfo(nickname, in ,out);
+                    roomManager.setRoomManager(true);
+
+                    synchronized (this.roomList) {
+                        this.roomList.get(roomName).add(roomManager);
+                    }
+
                     // 채팅방 스레드 생성
-                    Thread room = new ServerRoomThread(roomName, new RoomClientInfo(nickname, in ,out), roomList);
+                    Thread room = new ServerRoomThread(roomName, nickname, roomList);
                     // 대화 내용을 저장할 txt 파일 생성
                     fileWriter = new FileWriter("room [" + roomName + "].txt");
 
@@ -118,14 +125,20 @@ public class ServerMainThread extends Thread {
                         "/join".equalsIgnoreCase(msg.trim().substring(0, 5))
                         && msg.trim().substring(5, 6).equals(" ")) {
 
+                    String roomName = msg.trim().substring(6);
                     // 채팅방 존재 유무 판별
-                    if (!roomList.containsKey(msg.trim().substring(6))) {
+                    if (!roomList.containsKey(roomName)) {
                         out.println("존재하지 않는 방 이름입니다. 다시 입력해주세요.");
                         continue;
                     }
 
                     // 채팅방 스레드 생성
-                    Thread room = new ServerRoomThread(msg.trim().substring(6), new RoomClientInfo(nickname, in, out), roomList);
+                    RoomClientInfo roomClient = new RoomClientInfo(nickname, in, out);
+                    synchronized (this.roomList) {
+                        this.roomList.get(roomName).add(roomClient);
+                    }
+
+                    Thread room = new ServerRoomThread(msg.trim().substring(6), nickname, roomList);
 
                     // 현재 실행 중인 메인 서버 스레드에서의 작업을 잠시 멈추고 채팅방 스레드의 작업 시작
                     room.start();

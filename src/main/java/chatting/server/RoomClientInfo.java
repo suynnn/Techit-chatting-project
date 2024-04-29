@@ -12,10 +12,16 @@ public class RoomClientInfo {
     private BufferedReader in;
     private PrintWriter out;
 
+    private boolean isRoomManager;
+
+    private boolean isKicked;
+
     public RoomClientInfo(String nickName, BufferedReader in, PrintWriter out) {
         this.nickName = nickName;
         this.in = in;
         this.out = out;
+        this.isRoomManager = false;
+        this.isKicked = false;
     }
 
     public String getNickName() {
@@ -28,5 +34,21 @@ public class RoomClientInfo {
 
     public PrintWriter getOut() {
         return out;
+    }
+
+    public boolean isRoomManager() {
+        return isRoomManager;
+    }
+
+    public boolean isKicked() {
+        return isKicked;
+    }
+
+    public void setRoomManager(boolean roomManager) {
+        isRoomManager = roomManager;
+    }
+
+    public void setKicked(boolean kicked) {
+        isKicked = kicked;
     }
 }

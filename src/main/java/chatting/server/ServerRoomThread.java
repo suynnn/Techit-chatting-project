@@ -21,9 +21,13 @@ public class ServerRoomThread extends Thread {
 
     private PrintWriter fileWriter;
 
-    public ServerRoomThread(String roomName, RoomClientInfo roomClientInfo, Map<String, List<RoomClientInfo>> roomClients) {
+    public ServerRoomThread(String roomName, String nickname, Map<String, List<RoomClientInfo>> roomClients) {
         this.roomName = roomName;
-        this.roomClientInfo = roomClientInfo;
+        this.roomClientInfo = roomClients.get(roomName)
+                .stream()
+                .filter(roomClient -> roomClient.getNickName().equals(nickname))
+                .findAny().get();
+
         this.roomClients = roomClients;
 
         try {
@@ -33,9 +37,6 @@ public class ServerRoomThread extends Thread {
             e.printStackTrace();
         }
 
-        synchronized (this.roomClients) {
-            this.roomClients.get(roomName).add(roomClientInfo);
-        }
     }
 
     @Override
@@ -49,6 +50,12 @@ public class ServerRoomThread extends Thread {
         String msg;
         try {
             while ((msg = in.readLine()) != null) {
+                // 방장에 의해 강퇴되면 채팅방에서 나가짐
+                if (roomClientInfo.isKicked()) {
+                    out.println("방장에 의해 강퇴된 상태 입니다.");
+                    break;
+                }
+
                 // 채팅방에서 나가기
                 if ("/exit".equalsIgnoreCase(msg.trim())) {
                     break;
@@ -72,6 +79,41 @@ public class ServerRoomThread extends Thread {
                     if (receiverInfo != null) {
                         receiverInfo.getOut().println("[귓속말]"+ roomClientInfo.getNickName() + " : " + whisperMsg);
                         out.println("[귓속말]"+ roomClientInfo.getNickName() + " : " + whisperMsg);
+                    } else {
+                        out.println("현재 채팅방 안에 존재하지 않는 유저 입니다. 다시 확인해 주세요.");
+                    }
+
+                }
+                // 방장만이 사용할 수 있는 강퇴 기능 구현
+                else if (msg.contains("/kick") &&
+                        "/kick".equalsIgnoreCase(msg.trim().substring(0, 5))
+                        && msg.trim().substring(5, 6).equals(" ")) {
+
+                    if (!roomClientInfo.isRoomManager()) {
+                        out.println("방장만 사용할 수 있는 명령어 입니다.");
+                        continue;
+                    }
+
+                    String receiver = msg.substring(6);
+
+                    RoomClientInfo receiverInfo = roomClients.get(roomName)
+                            .stream()
+                            .filter(msgReceiver -> msgReceiver.getNickName().equals(receiver))
+                            .findAny()
+                            .orElse(null);
+
+                    if (receiverInfo != null) {
+                        out.println(receiver + "님을 정말 강퇴하시겠습니까? [y/n]");
+                        String answer;
+                        if ((answer = in.readLine()) != null && answer.equalsIgnoreCase("y")) {
+                            receiverInfo.setKicked(true);
+                            receiverInfo.getOut().println("방장에 의해 강퇴되었습니다.");
+
+                            roomClients.get(roomName).remove(receiverInfo);
+                        } else {
+                            out.println("강퇴를 취소하였습니다. ");
+                        }
+
                     } else {
                         out.println("현재 채팅방 안에 존재하지 않는 유저 입니다. 다시 확인해 주세요.");
                     }
