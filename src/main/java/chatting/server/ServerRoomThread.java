@@ -49,6 +49,11 @@ public class ServerRoomThread extends Thread {
 
         String msg;
         try {
+            if (roomClientInfo.isRoomManager()) {
+                out.println("\n@@ 방장만이 사용할 수 있는 명령어 입니다.\n" +
+                        "강퇴 : /kick [닉네임] @@\n");
+            }
+
             while ((msg = in.readLine()) != null) {
                 // 방장에 의해 강퇴되면 채팅방에서 나가짐
                 if (roomClientInfo.isKicked()) {
@@ -57,7 +62,12 @@ public class ServerRoomThread extends Thread {
                 }
 
                 // 채팅방에서 나가기
+                // 방장이 퇴장하면 그 다음 유저를 새 방장으로 만듦
                 if ("/exit".equalsIgnoreCase(msg.trim())) {
+                    if (roomClientInfo.isRoomManager() && roomClients.get(roomName).size() > 1) {
+                        roomClients.get(roomName).get(1).setRoomManager(true);
+                        broadcast(roomClients.get(roomName).get(1).getNickName() + "님이 방장이 되었습니다. ");
+                    }
                     break;
 
                 }
