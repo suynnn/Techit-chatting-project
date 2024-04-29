@@ -95,7 +95,12 @@ public class ServerMainThread extends Thread {
                 } else if(msg.contains("/join") &&
                         "/join".equalsIgnoreCase(msg.trim().substring(0, 5))
                         && msg.trim().substring(5, 6).equals(" ")) {
-                    // TODO 1. 입력한 방 이름이 없을 때의 exception 잡기
+
+                    if (!roomList.containsKey(msg.trim().substring(6))) {
+                        out.println("존재하지 않는 방 이름입니다. 다시 입력해주세요.");
+                        continue;
+                    }
+
                     Thread room = new ServerRoomThread(msg.trim().substring(6), new RoomClientInfo(nickname, in, out), roomList);
                     room.start();
                     room.join();
