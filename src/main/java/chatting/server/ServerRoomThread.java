@@ -1,4 +1,6 @@
-package chatting;
+package chatting.server;
+
+import chatting.server.RoomClientInfo;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -55,9 +57,12 @@ public class ServerRoomThread extends Thread {
                     String receiver = msg.substring(9, idx);
                     String whisperMsg = msg.substring(idx+1);
 
-                    RoomClientInfo receiverInfo = roomClients.get(roomNumber).stream().filter(msgReceiver -> msgReceiver.getNickName().equals(receiver))
+                    RoomClientInfo receiverInfo = roomClients.get(roomNumber)
+                            .stream()
+                            .filter(msgReceiver -> msgReceiver.getNickName().equals(receiver))
                             .findAny()
                             .orElse(null);
+
                     if (receiverInfo != null) {
                         receiverInfo.getOut().println("[귓속말]"+ roomClientInfo.getNickName() + " : " + whisperMsg);
                     } else {

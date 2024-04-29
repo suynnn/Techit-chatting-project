@@ -1,4 +1,4 @@
-package chatting;
+package chatting.client;
 
 
 import java.io.BufferedReader;

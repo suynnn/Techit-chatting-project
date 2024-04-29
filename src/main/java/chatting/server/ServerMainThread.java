@@ -1,9 +1,6 @@
-package chatting;
+package chatting.server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +33,7 @@ public class ServerMainThread extends Thread {
             while (true) {
                 nickname = in.readLine();
                 if (chatClients.containsKey(nickname)) {
-                    out.println("이미 사용 중인 닉네임 입니다. 다시 입력해주세요.");
+                    out.print("이미 사용 중인 닉네임 입니다. 다시 입력해주세요 : ");
 
                 } else {
                     System.out.println(nickname + " 닉네임의 사용자가 연결했습니다. 해당 사용자의 IP 주소 : "
@@ -66,13 +63,15 @@ public class ServerMainThread extends Thread {
                 "귓속말 : /whisper [닉네임] [메시지]";
 
         String msg;
+        FileWriter fileWriter = null;
+
         try {
             out.println(notice);
             out.println("=======================================");
 
             while ((msg = in.readLine()) != null) {
                 if ("/bye".equalsIgnoreCase(msg.trim())) {
-                    System.out.println(nickname + "닉네임의 사용자가 연결을 끊었습니다.");
+                    System.out.println(nickname + " 닉네임의 사용자가 연결을 끊었습니다.");
                     break;
 
                 } else if("/create".equalsIgnoreCase(msg.trim())) {
@@ -80,7 +79,7 @@ public class ServerMainThread extends Thread {
                     roomList.put(String.valueOf(roomNumber), new ArrayList<>());
 
                     Thread room = new ServerRoomThread(String.valueOf(roomNumber), new RoomClientInfo(nickname, in ,out), roomList);
-//                    new File("room [" + roomNumber + "].txt");
+                    fileWriter = new FileWriter("room [" + roomNumber + "].txt");
 
                     out.println(roomNumber++ + "번 방이 생성되었습니다.");
                     room.start();
@@ -93,7 +92,9 @@ public class ServerMainThread extends Thread {
                         out.println("["+roomName+"]");
                     }
 
-                } else if("/join".equalsIgnoreCase(msg.trim().substring(0, 5))) {
+                } else if(msg.contains("/join") &&
+                        "/join".equalsIgnoreCase(msg.trim().substring(0, 5))
+                        && msg.trim().substring(5, 6).equals(" ")) {
                     // TODO 1. 입력한 방 이름이 없을 때의 exception 잡기
                     Thread room = new ServerRoomThread(msg.trim().substring(6), new RoomClientInfo(nickname, in, out), roomList);
                     room.start();
@@ -117,7 +118,9 @@ public class ServerMainThread extends Thread {
                         }
                         out.println(" ");
                     }
-                } else if ("/whisper".equalsIgnoreCase(msg.trim().substring(0, 8)) && msg.trim().substring(8, 9).equals(" ")) {
+                } else if (msg.contains("/whisper") &&
+                        "/whisper".equalsIgnoreCase(msg.trim().substring(0, 8))
+                        && msg.trim().substring(8, 9).equals(" ")) {
                     msg = msg.trim();
                     int idx = msg.indexOf(" ", 9);
                     String receiver = msg.substring(9, idx);
@@ -128,6 +131,8 @@ public class ServerMainThread extends Thread {
                     } else {
                         out.println("존재하지 않는 유저 입니다. 다시 확인해 주세요.");
                     }
+                } else {
+                    out.println("잘못된 명령어 입니다. 다시 입력해 주세요");
                 }
             }
         } catch (IOException | InterruptedException e) {
@@ -136,6 +141,16 @@ public class ServerMainThread extends Thread {
             synchronized (chatClients) {
                 chatClients.remove(nickname);
             }
+
+            if (fileWriter != null) {
+                try {
+                    fileWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
 
             if (in != null) {
                 try {
@@ -152,6 +167,8 @@ public class ServerMainThread extends Thread {
                     e.printStackTrace();
                 }
             }
+
+
         }
     }
 }
