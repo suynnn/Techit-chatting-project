@@ -3,6 +3,10 @@ package chatting.server;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 
+/*
+ * 방에 입장한 유저의 정보를 저장할 클래스 입니다.
+ *
+ */
 public class RoomClientInfo {
     private String nickName;
     private BufferedReader in;

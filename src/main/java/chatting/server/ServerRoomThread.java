@@ -10,6 +10,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/*
+ * 채팅방 스레드 클래스 입니다.
+ * 채팅방이 처음 만들어지거나 유저들이 참석할 때 생성됩니다.
+ *
+ */
 public class ServerRoomThread extends Thread {
 
     private final String roomNumber;
@@ -46,10 +51,13 @@ public class ServerRoomThread extends Thread {
         String msg;
         try {
             while ((msg = in.readLine()) != null) {
+                // 채팅방에서 나가기
                 if ("/exit".equalsIgnoreCase(msg.trim())) {
                     break;
 
-                } else if (msg.contains("/whisper") &&
+                }
+                // 채팅방 전용 귓속말
+                else if (msg.contains("/whisper") &&
                         "/whisper".equalsIgnoreCase(msg.trim().substring(0, 8))
                         && msg.trim().substring(8, 9).equals(" ")) {
                     msg = msg.trim();
