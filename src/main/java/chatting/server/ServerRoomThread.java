@@ -65,8 +65,9 @@ public class ServerRoomThread extends Thread {
 
                     if (receiverInfo != null) {
                         receiverInfo.getOut().println("[귓속말]"+ roomClientInfo.getNickName() + " : " + whisperMsg);
+                        out.println("[귓속말]"+ roomClientInfo.getNickName() + " : " + whisperMsg);
                     } else {
-                        out.println("존재하지 않는 유저 입니다. 다시 확인해 주세요.");
+                        out.println("현재 채팅방 안에 존재하지 않는 유저 입니다. 다시 확인해 주세요.");
                     }
 
                 } else {

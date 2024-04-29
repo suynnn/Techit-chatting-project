@@ -133,6 +133,7 @@ public class ServerMainThread extends Thread {
 
                     if (chatClients.containsKey(receiver)) {
                         chatClients.get(receiver).println("[귓속말]"+ nickname + " : " + whisperMsg);
+                        out.println("[귓속말]"+ nickname + " : " + whisperMsg);
                     } else {
                         out.println("존재하지 않는 유저 입니다. 다시 확인해 주세요.");
                     }
