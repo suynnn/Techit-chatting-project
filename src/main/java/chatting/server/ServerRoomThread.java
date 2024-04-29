@@ -1,7 +1,5 @@
 package chatting.server;
 
-import chatting.server.RoomClientInfo;
-
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,26 +15,26 @@ import java.util.Map;
  */
 public class ServerRoomThread extends Thread {
 
-    private final String roomNumber;
+    private final String roomName;
     RoomClientInfo roomClientInfo;
     private final Map<String, List<RoomClientInfo>> roomClients;
 
     private PrintWriter fileWriter;
 
-    public ServerRoomThread(String roomNumber, RoomClientInfo roomClientInfo, Map<String, List<RoomClientInfo>> roomClients) {
-        this.roomNumber = roomNumber;
+    public ServerRoomThread(String roomName, RoomClientInfo roomClientInfo, Map<String, List<RoomClientInfo>> roomClients) {
+        this.roomName = roomName;
         this.roomClientInfo = roomClientInfo;
         this.roomClients = roomClients;
 
         try {
-            fileWriter = new PrintWriter(new FileWriter("room [" + roomNumber + "].txt", true), true);
+            fileWriter = new PrintWriter(new FileWriter("room [" + roomName + "].txt", true), true);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         synchronized (this.roomClients) {
-            this.roomClients.get(roomNumber).add(roomClientInfo);
+            this.roomClients.get(roomName).add(roomClientInfo);
         }
     }
 
@@ -65,7 +63,7 @@ public class ServerRoomThread extends Thread {
                     String receiver = msg.substring(9, idx);
                     String whisperMsg = msg.substring(idx+1);
 
-                    RoomClientInfo receiverInfo = roomClients.get(roomNumber)
+                    RoomClientInfo receiverInfo = roomClients.get(roomName)
                             .stream()
                             .filter(msgReceiver -> msgReceiver.getNickName().equals(receiver))
                             .findAny()
@@ -90,12 +88,12 @@ public class ServerRoomThread extends Thread {
             out.println("=======================================");
 
             synchronized (roomClients) {
-                roomClients.get(roomNumber).remove(roomClientInfo);
+                roomClients.get(roomName).remove(roomClientInfo);
 
-                if (roomClients.get(roomNumber).size() == 0) {
-                    roomClients.remove(roomNumber);
+                if (roomClients.get(roomName).size() == 0) {
+                    roomClients.remove(roomName);
 
-                    System.out.println("방 번호 [" + roomNumber + "]가 삭제되었습니다.");
+                    System.out.println("방 [" + roomName + "]가 삭제되었습니다.");
                 }
             }
 
@@ -107,7 +105,7 @@ public class ServerRoomThread extends Thread {
     public void broadcast(String msg) {
 
         synchronized (roomClients) {
-            Iterator<RoomClientInfo> it = roomClients.get(roomNumber).iterator();
+            Iterator<RoomClientInfo> it = roomClients.get(roomName).iterator();
 
             while (it.hasNext()) {
                 PrintWriter out = it.next().getOut();

@@ -17,7 +17,6 @@ public class ServerMainThread extends Thread {
 
     private final Map<String, PrintWriter> chatClients;
 
-    private static int roomNumber = 1;
     private final Map<String, List<RoomClientInfo>> roomList;
 
     private BufferedReader in;
@@ -84,15 +83,19 @@ public class ServerMainThread extends Thread {
                 }
                 // 채팅방 생성
                 else if("/create".equalsIgnoreCase(msg.trim())) {
-                    System.out.println(roomNumber + "번 방이 생성되었습니다.");
-                    roomList.put(String.valueOf(roomNumber), new ArrayList<>());
+
+                    out.println("생성할 방 제목을 입력해 주세요 : ");
+                    String roomName = in.readLine();
+
+                    roomList.put(roomName, new ArrayList<>());
 
                     // 채팅방 스레드 생성
-                    Thread room = new ServerRoomThread(String.valueOf(roomNumber), new RoomClientInfo(nickname, in ,out), roomList);
+                    Thread room = new ServerRoomThread(roomName, new RoomClientInfo(nickname, in ,out), roomList);
                     // 대화 내용을 저장할 txt 파일 생성
-                    fileWriter = new FileWriter("room [" + roomNumber + "].txt");
+                    fileWriter = new FileWriter("room [" + roomName + "].txt");
 
-                    out.println(roomNumber++ + "번 방이 생성되었습니다.");
+                    out.println(roomName + " 방이 생성되었습니다.");
+                    System.out.println(roomName + " 방이 생성되었습니다.");
 
                     // 현재 실행 중인 메인 서버 스레드에서의 작업을 잠시 멈추고 채팅방 스레드의 작업 시작
                     room.start();
